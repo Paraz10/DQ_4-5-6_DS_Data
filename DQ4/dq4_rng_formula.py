@@ -181,12 +181,15 @@ def reverse_advance(x, num=1):
 
 
 def main():
-    RNG = 'ADEFD53A' #'EE5A9B58'
+    RNG = 'EDF5A839' #'ADEFD53A' #'EE5A9B58'
 
-    advance_rng(RNG, 50)
-    reverse_rng("20a42697", 10)
+    adv1 = '74D008F2'
+    adv2 = 'A5BFC367'
+
+    advance_rng(RNG, 20)
     
-    reverse_rng("ADEFD53A", 6)
+    reverse_rng("74D008F2", 6)
+    reverse_rng("A5BFC367", 6)
 
     #advance(RNG, 10)
 
