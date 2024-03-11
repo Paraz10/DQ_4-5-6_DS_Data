@@ -1,2 +1,3 @@
 ignore
 ~$*.xlsx
+__pycache__/
