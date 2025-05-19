@@ -8,5 +8,5 @@ This repo serves to stock informations, data and scripts about how the following
 ## Credits
 
 Some of this work was inspired / adapted from existing work : 
-* cleartonic for his method using the heal values to find the seeds you hit on your console, and functions related to seed advancement
-* Daisuke for functions related to seed generation and seed advancement works
+* cleartonic (Youtube) for his video showing his method using the heal values to find the seeds you hit on your console, and functions related to seed advancement in DQ4
+* DaisukeDaisuke (Github) for his repository storing functions related to seed generation, seed advancement and more about DQ4 and DQ5
