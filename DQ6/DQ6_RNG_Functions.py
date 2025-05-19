@@ -1,7 +1,6 @@
 
 
 import datetime
-from tqdm import tqdm
 
 r12 = int('5D588B65', 16)
 r14 = int('269EC3', 16)

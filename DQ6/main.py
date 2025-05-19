@@ -1,5 +1,6 @@
 import DQ6_RNG_Functions as DQ
 import datetime
+from tqdm import tqdm
 
 
 heal_lists_to_check = [
@@ -23,8 +24,7 @@ Run a range of seeds and calculate the next 10 heal values for each seed
 """
 def start_run(start_seed, end_seed):
     for i in tqdm(range(int(start_seed, base=16), int(end_seed, base=16))): 
-        #print("----" + hex(i) + "_" + str(i) + "----")
-        advance(i, 10)
+        advance(i, 10, heal_lists_to_check)
 
 
 
