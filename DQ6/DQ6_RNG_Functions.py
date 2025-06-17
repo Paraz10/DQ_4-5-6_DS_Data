@@ -4,7 +4,8 @@ import datetime
 
 r12 = int('5D588B65', 16)
 r14 = int('269EC3', 16)
-base1 = 0x7e875695 # (Sometimes 7e875697 on my console) # Unique value used to generate the
+ # Unique value used to generate the seeds when booting the game
+base1 = 0x7e875695 # (Sometimes 0x7e875697 on my console, depends of the datetimes and the Modulo 2 of the number of times I changed the date or time on my console)
 
 
 
@@ -82,6 +83,53 @@ def calculate_heal_value(seed):
     return heal_val
 
 
+"""
+Calculate the amount of stat gained from a Seed of Strength, Agility or Wisdom for a given seed
+@param seed: the seed as an integer
+"""
+def calculate_life_seed_value_1(seed):
+    seed_val = calculate_hoimi_value(seed, 0x3) + 1
+    return seed_val
+
+
+"""
+Calculate the amount of stat gained from a Seed of Magic or Resilience for a given seed
+@param seed: the seed as an integer
+"""
+def calculate_life_seed_value_2(seed):
+    seed_val = calculate_hoimi_value(seed, 0x3) + 3
+    return seed_val
+
+
+"""
+Calculate the amount of stat gained from a Seed of Life for a given seed
+@param seed: the seed as an integer
+"""
+def calculate_life_seed_value_3(seed):
+    seed_val = calculate_hoimi_value(seed, 0x3) + 4
+    return seed_val
+
+
+"""
+Check if a seed will drop an item with a given drop rate (works for recruitment and item drops)
+@param seed: the seed as an integer of 32 bits
+@param drop_rate: the power of 2 of the drop rate (e.g. 1/64 = 2^6 = 6 -> 6)
+"""
+def will_seed_drop_item(seed, drop_rate):
+    rng = seed
+    # Ensure drop_rate is between 0 and 31
+    if drop_rate < 0 or drop_rate > 31:
+        raise ValueError("drop_rate must be between 0 and 31")
+    
+    # Check if the first drop_rate bits of the seed are 0
+    for i in range(32, 32-drop_rate-1, -1):
+        # check the i-th bit of the seed
+        if (rng >> i) != 0:
+            return False
+    return True  # If all bits are 0, the item will drop
+
+
+
 
 # -----------------------------------------------------------------------------------------
 # -------------- Step 1 : Functions to find some of the seeds you hit  --------------------
@@ -91,28 +139,33 @@ def calculate_heal_value(seed):
 """
 For a given seed, calculate the next num heal values and check if they match the given heal values
 @param seed: the seed as an integer
-@param num: the number of seeds to calculate
-@param heal_lists_to_check: the list of list of num heal values to check
+@param nb_heal_values: the number of heal values to check
+@param heal_lists_to_check: the dictionary containing the heal values to check against
 """
-def advance(seed, num, heal_lists_to_check):    
+def advance(seed, nb_heal_values, heal_lists_to_check):    
     rng = seed
-    for i in range(0, num):
+    # Generate a list of indexes to store wich heal list to continue to check
+    index_list = []
+    for nb_heal_list in range(len(heal_lists_to_check)):
+        index_list.append(nb_heal_list)
+
+    for i in range(0, nb_heal_values):
         rng = advance_rng(rng, 2)
         heal_val = calculate_heal_value(rng)
 
         j = 0
-        while j < len(heal_lists_to_check):
-            if heal_val != heal_lists_to_check[j][i]:
-                heal_lists_to_check.pop(j)
+        while j < len(index_list):
+            if heal_val != heal_lists_to_check[index_list[j]]['heal_values'][i]:
+                index_list.pop(j)
                 j -= 1
             j += 1
-        if len(heal_lists_to_check) == 0:
+        if len(index_list) == 0:
             return None
 
         rng = advance_rng(rng, 2)
 
-    print("\nSeed found : {:08X}".format(seed) + " for heal values " + str(heal_lists_to_check[0]))
-    return seed
+    print("\nSeed found : {:08X}".format(seed) + " for heal data : " + str(heal_lists_to_check[index_list[0]]))
+    return heal_lists_to_check[index_list[0]]  # Return the first element of the list, which is the one that matches the seed's heal values
 
 
 
@@ -237,7 +290,7 @@ def find_base_from_seed(seed, year, month, day, hour, minute, second):
     encoded_time = encode_time(hour, minute, second)
     base = (seed - encoded_date - encoded_time) & 0xFFFFFFFF  # Ensure the result is a 32-bit integer
 
-    print("Base: " + hex(base).replace('0x','').zfill(8))
+    # print("Base: " + hex(base).replace('0x','').zfill(8))
     return base
 
 
@@ -254,8 +307,9 @@ def find_base_from_seed(seed, year, month, day, hour, minute, second):
 Find the seeds that can win the casino, and find the ones reachable by a console with 50 less advance, filtered by the hitable seed prefixes
 @param seed_prefixes: the seed prefixs as a list of integers
 """
-def find_casino_wins(seed_prefixes):
-    print("winning_seed,mother_seed,advance,startup_seed")
+def find_casino_wins(seed_prefixes, minimum_advance=50, maximum_advance=60):
+    results = []
+    #print("winning_seed,mother_seed,advance,startup_seed,datetimes")
     #print("startup_seed,")
     for i in range(0, 0x10000000):
         seed2 = advance_rng(i, 1)
@@ -271,12 +325,14 @@ def find_casino_wins(seed_prefixes):
                     seed5 = advance_rng(i, 4)
                     if seed5 & 0xF0000000 == 0:
 
-                        for j in range(0, 10):
-                            startup_seed = reverse_rng(i, 50+j)
+                        for j in range(minimum_advance, maximum_advance):
+                            startup_seed = reverse_rng(i, j)
                             # If startup_seed has a prefix in the list of prefixes, print the seed
                             if startup_seed >> 24 in seed_prefixes: # (0x7E, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84)
-                                print("{:08X}".format(i) + ",{:08X}".format(reverse_rng(i, 1)) + "," + str(50+j) + ",{:08X}".format(startup_seed))
-                                print("0x{:08X}".format(startup_seed) + ",")
+                                #print("{:08X}".format(i) + ",{:08X}".format(reverse_rng(i, 1)) + "," + str(j) + ",{:08X}".format(startup_seed)) 
+                                #print("0x{:08X}".format(startup_seed) + ",")
+                                results.append(startup_seed)
+    return results
     
 
 
@@ -290,9 +346,9 @@ def find_seeds_datetime(seeds):
 
     results = []
 
-    for year in range(2000, 2100): # 2100
-        for month in range(1, 13):
-            for day in range(1, 32):
+    for year in range(2000, 2100): # 2000, 2100
+        for month in range(1, 13): # 1, 13
+            for day in range(1, 32): # 1, 32
                 try:
                     encoded_date = encode_date(year, month, day)
                 except:
@@ -303,7 +359,7 @@ def find_seeds_datetime(seeds):
                 # Try all possible hours, minutes, seconds
                 for hour in range(24):
                     for minute in range(60):
-                        for second in range(7,10):
+                        for second in range(7,8):
                             try:
                                 encoded_time = encode_time(hour, minute, second)
                             except:
@@ -322,9 +378,10 @@ def find_seeds_datetime(seeds):
                                     break
                             
                             if has_matched:
-                                print(f"Found date for seed {matched_seed:08X} : {year}-{month:02d}-{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
-                                results.append(f"{matched_seed:08X} - {year}-{month:02d}-{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
+                                #print(f"Found date for seed 0x{matched_seed:08X} {matched_seed} : {year}-{month:02d}-{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
+                                results.append(f"0x{matched_seed:08X} {matched_seed} - {year}-{month:02d}-{day:02d} {hour:02d}:{minute:02d}:{second:02d}")
 
+    results.sort()  # Sort results by seed value
     return results
 
 
