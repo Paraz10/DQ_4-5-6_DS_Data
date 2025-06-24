@@ -1,4 +1,4 @@
-import DQ6_RNG_Functions as DQ
+import DQ4_RNG_Functions as DQ
 import datetime
 from tqdm import tqdm
 
@@ -6,15 +6,18 @@ from tqdm import tqdm
 
 # heal_lists_data is a list of dictionaries containing heal values and their corresponding date and time
 heal_lists_data = [
-    {'heal_values' : [37,38,40,35,30,30,30,38,34,34], 'year': 2000, 'month': 1, 'day': 1, 'hour': 0, 'minute': 0, 'second': 10},
-    {'heal_values' : [33,38,30,32,37,33,37,40,31,34], 'year': 2000, 'month': 1, 'day': 1, 'hour': 0, 'minute': 0, 'second': 11},
-    {'heal_values' : [30,37,31,40,32,37,32,31,39,33], 'year': 2000, 'month': 1, 'day': 1, 'hour': 0, 'minute': 0, 'second': 12},
+    {'heal_values' : [36,40,33,40,40,36,34,33,30,33], 'year': 2000, 'month': 1, 'day': 1, 'hour': 0, 'minute': 0, 'second': 7},
+    {'heal_values' : [35,37,34,36,39,30,38,38,32,35], 'year': 2000, 'month': 1, 'day': 1, 'hour': 0, 'minute': 0, 'second': 8},
+    {'heal_values' : [40,40,37,37,36,35,40,30,39,35], 'year': 2000, 'month': 1, 'day': 1, 'hour': 0, 'minute': 0, 'second': 9},
     
-    {'heal_values' : [37,36,34,37,30,31,33,36,35,39], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 10},
-    {'heal_values' : [40,40,40,40,31,36,34,34,37,35], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 10},
-    {'heal_values' : [34,35,35,34,36,35,40,38,32,38], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 11},
-    {'heal_values' : [30,35,36,31,32,38,36,40,30,38], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 12},
-    {'heal_values' : [33,40,31,34,32,32,37,38,31,34], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 12},
+    {'heal_values' : [31,34,30,35,32,38,30,31,34,39], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 8},
+    {'heal_values' : [33,40,38,36,34,39,39,36,31,32], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 8}, # Anomaly
+    {'heal_values' : [31,37,39,32,33,33,31,40,33,34], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 9}, # Anomaly
+    {'heal_values' : [30,31,31,30,31,31,34,36,36,30], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 9},
+    {'heal_values' : [33,37,35,30,34,30,32,37,38,39], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 10},
+    {'heal_values' : [30,38,31,36,32,31,40,36,34,31], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 10}, # Anomaly
+    {'heal_values' : [32,34,36,36,33,35,36,30,40,31], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 11}, # 1/2
+    {'heal_values' : [30,39,39,35,31,33,38,36,32,37], 'year': 2004, 'month': 3, 'day': 25, 'hour': 0, 'minute': 0, 'second': 11}, # 1/2
 ]
 
 
@@ -35,7 +38,7 @@ def start_run(start_seed, end_seed):
             seed_data = matched_heal_values.copy()
             seed_data['seed'] = seed
             # Reversing the seed to find the seed generated at the game boot
-            seed_data['mother_seed'] = DQ.reverse_rng(seed, 3)
+            seed_data['mother_seed'] = DQ.reverse_rng(seed, 6)
             found_seeds.append(seed_data)
     
     for seed_data in found_seeds:
