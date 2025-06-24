@@ -348,7 +348,6 @@ def find_poker_royal_flush_first_draw(seed_prefixes: list, minimum_advance: int 
                     nb_valid_cards += 1
             
             if nb_valid_cards >= 5:  # At least 5 cards must be valid
-                print(f"Found Royal Flush in first draw for seed {seed:08X}")
                 for advance in range(minimum_advance, maximum_advance + 1):
                         startup_seed = reverse_rng(seed, advance)
                         # If startup_seed has a prefix in the list of prefixes, print the seed
