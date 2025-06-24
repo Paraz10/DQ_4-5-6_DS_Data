@@ -322,7 +322,9 @@ def generate_card_for_seed(seed: int) -> int:
 """
 Find the seeds that will generate a Royal Slime Flush in Poker (only in the first draw). The Royal Slime Flush must be 10 J Q K A of slime and exclude the Joker
 Card values are genrated in order from As to King for each color, in the order Blue, Red, Green, Yellow. The Joker is card 52.
-@param seed: the seed as an integer
+@param seed_prefixes: the list of prefixes to check for the seed (e.g. [0x7E, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84])
+@param minimum_advance: the minimum advance to apply to the seed (default is 50)
+@param maximum_advance: the maximum advance to apply to the seed (default is 60)
 @return: the list of seeds that will generate a Royal Flush
 """
 def find_poker_royal_flush_first_draw(seed_prefixes: list, minimum_advance: int = 50, maximum_advance: int = 60) -> list:
