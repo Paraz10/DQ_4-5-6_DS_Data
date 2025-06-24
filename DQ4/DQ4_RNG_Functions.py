@@ -328,7 +328,7 @@ Card values are genrated in order from As to King for each color, in the order B
 @return: the list of seeds that will generate a Royal Flush
 """
 def find_poker_royal_flush_first_draw(seed_prefixes: list, minimum_advance: int = 50, maximum_advance: int = 60) -> list:
-    winning_combinaisons = [set([0, 9, 10, 11, 12])]  # Royal Slime Flush combinations
+    winning_combinaison = [0, 9, 10, 11, 12]  # Royal Slime Flush combination
     results = []
     for seed in range(0x00000000, 0x100000000):  # 0x00000000 to 0xFFFFFFFF
         rng = seed
@@ -338,23 +338,17 @@ def find_poker_royal_flush_first_draw(seed_prefixes: list, minimum_advance: int 
         while len(first_draw) < 5:
             rng = advance_rng(rng, 1)
             card_value = generate_card_for_seed(rng)
+            if card_value not in winning_combinaison:
+                break # If the card is not in the winning combination, break the loop
             if card_value not in first_draw:
                 first_draw.append(card_value)
-        
-        # Check if the cards form a Royal Flush
-        for comb in winning_combinaisons:
-            nb_valid_cards = 0
             
-            for card in comb:
-                if card in first_draw:
-                    nb_valid_cards += 1
-            
-            if nb_valid_cards >= 5:  # At least 5 cards must be valid
-                for advance in range(minimum_advance, maximum_advance + 1):
-                        startup_seed = reverse_rng(seed, advance)
-                        # If startup_seed has a prefix in the list of prefixes, print the seed
-                        if startup_seed >> 24 in seed_prefixes: # (0x7E, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84)
-                            results.append(startup_seed)
+        if len(first_draw) == 5:
+            for advance in range(minimum_advance, maximum_advance + 1):
+                startup_seed = reverse_rng(seed, advance)
+                # If startup_seed has a prefix in the list of prefixes, print the seed
+                if startup_seed >> 24 in seed_prefixes: # (0x7E, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84)
+                    results.append(startup_seed)
 
     return results
 
