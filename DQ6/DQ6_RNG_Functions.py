@@ -19,7 +19,7 @@ Calculate the next 'num' seeds given a seed 'x'
 @param seed: the seed as an integer
 @param num: the number of seeds to calculate
 """
-def advance_rng(seed, num, display=False):
+def advance_rng(seed: int, num: int, display: bool = False) -> int:
     rng = seed
     #r12 = int('5D588B65', 16)
     #r14 = int('269EC3', 16)
@@ -41,7 +41,7 @@ Calculate the previous 'num' seeds given a seed 'x'
 @param seed: the seed as an integer
 @param num: the number of seeds to calculate
 """
-def reverse_rng(seed, num, display=False):
+def reverse_rng(seed: int, num: int, display: bool = False) -> int:
     #r12 = int('5D588B65', 16)  # multiplicateur
     #r14 = int('269EC3', 16)    # incrément
     mod = 0x100000000          # 2^32
@@ -66,7 +66,7 @@ Calculate the hoimi value that will come given a seed
 @param seed: the seed as an integer
 @param hoimi_mult: the multiplier for the hoimi value
 """
-def calculate_hoimi_value(seed, hoimi_mult):
+def calculate_hoimi_value(seed: int, hoimi_mult: int) -> int:
     rng = seed
     hoimi = rng >> 16
     hoimi2 = (hoimi * hoimi_mult) >> 16
@@ -77,7 +77,7 @@ def calculate_hoimi_value(seed, hoimi_mult):
 Calculate the heal value that will come given for a seed
 @param seed: the seed as an integer
 """
-def calculate_heal_value(seed):
+def calculate_heal_value(seed: int) -> int:
     #hoimi_mult = int('B', base=16) # 02080D58
     heal_val = calculate_hoimi_value(seed, 0xB) + 30
     return heal_val
@@ -87,7 +87,7 @@ def calculate_heal_value(seed):
 Calculate the amount of stat gained from a Seed of Strength, Agility or Wisdom for a given seed
 @param seed: the seed as an integer
 """
-def calculate_life_seed_value_1(seed):
+def calculate_life_seed_value_1(seed: int) -> int:
     seed_val = calculate_hoimi_value(seed, 0x3) + 1
     return seed_val
 
@@ -96,7 +96,7 @@ def calculate_life_seed_value_1(seed):
 Calculate the amount of stat gained from a Seed of Magic or Resilience for a given seed
 @param seed: the seed as an integer
 """
-def calculate_life_seed_value_2(seed):
+def calculate_life_seed_value_2(seed: int) -> int:
     seed_val = calculate_hoimi_value(seed, 0x3) + 3
     return seed_val
 
@@ -105,7 +105,7 @@ def calculate_life_seed_value_2(seed):
 Calculate the amount of stat gained from a Seed of Life for a given seed
 @param seed: the seed as an integer
 """
-def calculate_life_seed_value_3(seed):
+def calculate_life_seed_value_3(seed: int) -> int:
     seed_val = calculate_hoimi_value(seed, 0x3) + 4
     return seed_val
 
@@ -115,7 +115,7 @@ Check if a seed will drop an item with a given drop rate (works for recruitment 
 @param seed: the seed as an integer of 32 bits
 @param drop_rate: the power of 2 of the drop rate (e.g. 1/64 = 2^6 = 6 -> 6)
 """
-def will_seed_drop_item(seed, drop_rate):
+def will_seed_drop_item(seed: int, drop_rate: int) -> bool:
     rng = seed
     # Ensure drop_rate is between 0 and 31
     if drop_rate < 0 or drop_rate > 31:
@@ -142,7 +142,7 @@ For a given seed, calculate the next num heal values and check if they match the
 @param nb_heal_values: the number of heal values to check
 @param heal_lists_to_check: the dictionary containing the heal values to check against
 """
-def advance(seed, nb_heal_values, heal_lists_to_check):    
+def advance(seed: int, nb_heal_values: int, heal_lists_to_check: list) -> dict:
     rng = seed
     # Generate a list of indexes to store wich heal list to continue to check
     index_list = []
@@ -180,7 +180,7 @@ Process used to adjust the members of the dates and times in seed generation
 @param value: the value as an integer
 @return: the adjusted value as an integer
 """
-def div_date_adjust(value):
+def div_date_adjust(value: int) -> int:
     return value + (value // 0xA) * 6
 
 
@@ -191,7 +191,7 @@ Encode a date into a 32-bit integer
 @param day: the day as an integer
 @return: the encoded date as a 32-bit integer
 """
-def encode_date(year, month, day):
+def encode_date(year: int, month: int, day: int) -> int:
     if (year < 2000 or year > 2099):
         raise ValueError("Year must be between 2000 and 2099")
     if (month < 1 or month > 12):
@@ -229,7 +229,7 @@ Encode a time into a 32-bit integer
 @param second: the second as an integer
 @return: the encoded time as a 32-bit integer
 """
-def encode_time(hour, minute, second):
+def encode_time(hour: int, minute: int, second: int) -> int:
     if not (0 <= hour <= 23 and 0 <= minute <= 59 and 0 <= second <= 59):
         raise ValueError("Invalid time input")
 
@@ -265,7 +265,7 @@ Generate a seed from a date
 @param minute: the minute as an integer
 @param second: the second as an integer
 """
-def generate_seed_from_date(year, month, day, hour, minute, second):
+def generate_seed_from_date(year: int, month: int, day: int, hour: int, minute: int, second: int) -> int:
     encoded_date = encode_date(year, month, day)
     encoded_time = encode_time(hour, minute, second)
 
@@ -285,7 +285,7 @@ Find the unique value of a console using a seed and the datetime used to hit it
 @param minute: the minute as an integer
 @param second: the second as an integer
 """
-def find_base_from_seed(seed, year, month, day, hour, minute, second):
+def find_base_from_seed(seed: int, year: int, month: int, day: int, hour: int, minute: int, second: int) -> int:
     encoded_date = encode_date(year, month, day)
     encoded_time = encode_time(hour, minute, second)
     base = (seed - encoded_date - encoded_time) & 0xFFFFFFFF  # Ensure the result is a 32-bit integer
@@ -306,8 +306,11 @@ def find_base_from_seed(seed, year, month, day, hour, minute, second):
 """
 Find the seeds that can win the casino, and find the ones reachable by a console with 50 less advance, filtered by the hitable seed prefixes
 @param seed_prefixes: the seed prefixs as a list of integers
+@param minimum_advance: the minimum advance to reach the seed (default is 50)
+@param maximum_advance: the maximum advance to reach the seed (default is 60)
+@return: a list of winning seeds that can be reached by the console
 """
-def find_casino_wins(seed_prefixes, minimum_advance=50, maximum_advance=60):
+def find_casino_wins(seed_prefixes: list, minimum_advance: int = 50, maximum_advance: int = 60) -> list:
     results = []
     #print("winning_seed,mother_seed,advance,startup_seed,datetimes")
     #print("startup_seed,")
@@ -342,7 +345,7 @@ Calculate all the initial seeds of the console and check if one of them match th
 @param seeds: the list of seeds as integers
 @return: the list of seeds and matched datetimes as strings
 """
-def find_seeds_datetime(seeds):
+def find_seeds_datetime(seeds: list) -> list:
 
     results = []
 
