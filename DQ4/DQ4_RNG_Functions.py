@@ -322,12 +322,9 @@ def generate_card_for_seed(seed: int) -> int:
 """
 Find the seeds that will generate a Royal Slime Flush in Poker (only in the first draw). The Royal Slime Flush must be 10 J Q K A of slime and exclude the Joker
 Card values are genrated in order from As to King for each color, in the order Blue, Red, Green, Yellow. The Joker is card 52.
-@param seed_prefixes: the list of prefixes to check for the seed (e.g. [0x7E, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84])
-@param minimum_advance: the minimum advance to apply to the seed (default is 50)
-@param maximum_advance: the maximum advance to apply to the seed (default is 60)
 @return: the list of seeds that will generate a Royal Flush
 """
-def find_poker_royal_flush_first_draw(seed_prefixes: list, minimum_advance: int = 50, maximum_advance: int = 60) -> list:
+def find_poker_royal_flush_first_draw() -> list:
     winning_combinaison = [0, 9, 10, 11, 12]  # Royal Slime Flush combination
     results = []
     for seed in range(0x00000000, 0x100000000):  # 0x00000000 to 0xFFFFFFFF
@@ -344,13 +341,35 @@ def find_poker_royal_flush_first_draw(seed_prefixes: list, minimum_advance: int 
                 first_draw.append(card_value)
             
         if len(first_draw) == 5:
-            for advance in range(minimum_advance, maximum_advance + 1):
-                startup_seed = reverse_rng(seed, advance)
-                # If startup_seed has a prefix in the list of prefixes, print the seed
-                if startup_seed >> 24 in seed_prefixes: # (0x7E, 0x7F, 0x80, 0x81, 0x82, 0x83, 0x84)
-                    results.append(startup_seed)
+                startup_seed = reverse_rng(seed, 1)
+                results.append(startup_seed)
 
     return results
+
+
+
+
+"""
+Find the startup seeds that can be hit by the console, given a list of seeds and a range of advances
+@param seeds: the list of seeds as integers
+@param min_advance: the minimum advance to reach the seed
+@param max_advance: the maximum advance to reach the seed
+@return: a list of startup seeds that can be hit by the console
+"""
+def find_hittable_startup_seeds(seeds: list, min_advance: int, max_advance: int) -> list:
+    results = []
+    seed_prefixes = []
+    for i in range(0, 7):
+        seed_prefixes.append(((base1 >> 24) + i) & 0xFF)
+    
+    for seed in seeds:
+        for advance in range(min_advance, max_advance + 1):
+            startup_seed = reverse_rng(seed, advance)
+            if startup_seed >> 24 in seed_prefixes:
+                results.append(startup_seed)
+
+    return results
+
 
 
 """
@@ -358,7 +377,7 @@ Calculate all the initial seeds of the console and check if one of them match th
 @param seeds: the list of seeds as integers
 @return: the list of seeds and matched datetimes as strings
 """
-def find_seeds_datetime(seeds: list) -> list:
+def find_seeds_datetime(seeds: list, min_second: int = 7, max_second: int = 10) -> list:
 
     results = []
 
@@ -375,7 +394,7 @@ def find_seeds_datetime(seeds: list) -> list:
                 # Try all possible hours, minutes, seconds
                 for hour in range(24):
                     for minute in range(60):
-                        for second in range(7,8):
+                        for second in range(min_second, max_second + 1):
                             try:
                                 encoded_time = encode_time(hour, minute, second)
                             except:
